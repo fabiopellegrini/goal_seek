@@ -29,16 +29,16 @@ defmodule GoalSeek do
   iex> GoalSeek.seek(5, &Kernel.+/2, [3, 0], 1)
   {:ok, 2}
 
-  iex> GoalSeek.seek(-10, &(&1 ** 3), [0], 0)
+  iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0)
   {:ok, -2.15}
 
-  # iex> GoalSeek.seek(10, &(&1 ** 3), [0], 0, tolerance_fn: fn result, _ -> result >= 8 and result <= 12 end)
+  # iex> GoalSeek.seek(10, &:math.pow(&1, 3), [0], 0, tolerance_fn: fn result, _ -> result >= 8 and result <= 12 end)
   # {:ok, 2.15}
 
-  # iex> GoalSeek.seek(-10, &(&1 ** 3), [0], 0, result_precision: 3)
+  # iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0, result_precision: 3)
   # {:ok, -2.154}
 
-  iex> GoalSeek.seek(-9, &(&1 ** 3), [0], 0, acceptance_fn: &(&1 > 0))
+  iex> GoalSeek.seek(-9, &:math.pow(&1, 3), [0], 0, acceptance_fn: &(&1 > 0))
   {:error, :cannot_converge}
   """
   @spec seek(number(), (... -> number()), list(), integer(), keyword()) ::
@@ -175,9 +175,11 @@ defmodule GoalSeek do
   defp goal_reached?(goal, max_iterations) do
     fn result, current_iteration ->
       if current_iteration < max_iterations / 2 do
-        Float.round(abs(result - goal) / 1, @desired_precision) <= 10 ** (-1 * @desired_precision)
+        Float.round(abs(result - goal) / 1, @desired_precision) <=
+          :math.pow(10, -1 * @desired_precision)
       else
-        Float.round(abs(result - goal) / 1, @minimum_precision) <= 10 ** (-1 * @minimum_precision)
+        Float.round(abs(result - goal) / 1, @minimum_precision) <=
+          :math.pow(10, -1 * @minimum_precision)
       end
     end
   end
