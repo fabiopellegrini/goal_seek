@@ -42,13 +42,12 @@ The function arguments are the following:
 
 Available options:
 
-| Name                | Description                                                                                                                                                   | Default            |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| `:tolerance_fn`     | a custom function used to check the validity of the result, it takes two arguments (`current_result` and `current_iteration`) and returns a boolean           | see code           |
-| `:acceptance_fn`    | a custom function used to ensure the seeked value respects some criteria (e.g. being positive), it takes one argument (`current_guess`) and returns a boolean | `fn _ -> true end` |
-| `:max_iterations`   | the maximum number of attempts to make                                                                                                                        | 1000               |
-| `:max_step`         | the maximum step size to move the independent variable `x` for the next guess                                                                                 | `nil`              |
-| `:result_precision` | decimal precision of the seeked value                                                                                                                         | 2                  |
+| Name              | Description                                                                                                                                                   | Default |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `:tolerance_fn`   | a custom function used to check the validity of the result, it takes two arguments (`current_result` and `current_iteration`) and returns a boolean           | `nil`   |
+| `:acceptance_fn`  | a custom function used to ensure the seeked value respects some criteria (e.g. being positive), it takes one argument (`current_guess`) and returns a boolean | `nil`   |
+| `:max_iterations` | the maximum number of attempts to make                                                                                                                        | 1000    |
+| `:max_step`       | the maximum step size to move the independent variable `x` for the next guess                                                                                 | `nil`   |
 
 ## Examples
 
