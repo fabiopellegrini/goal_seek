@@ -2,9 +2,7 @@
 
 [![Hex version](https://img.shields.io/hexpm/v/goal_seek.svg)](https://hex.pm/packages/goal_seek)
 [![License](https://img.shields.io/hexpm/l/goal_seek.svg)](https://github.com/fabiopellegrini/goal_seek/blob/master/LICENSE)
-[![Build Status](https://img.shields.io/circleci/project/github/fabiopellegrini/goal_seek/master.svg)](https://circleci.com/gh/fabiopellegrini/goal_seek/tree/master)
-[![Code coverage badge](https://img.shields.io/codecov/c/github/fabiopellegrini/goal_seek/master.svg)](https://codecov.io/gh/fabiopellegrini/goal_seek/branch/master)
-[![Coverage Status](https://coveralls.io/repos/fabiopellegrini/goal_seek/badge.svg?branch=master)](https://coveralls.io/r/fabiopellegrini/goal_seek?branch=master)
+[![CI tests](https://github.com/fabiopellegrini/goal_seek/actions/workflows/ci.yml/badge.svg)](https://github.com/fabiopellegrini/goal_seek/actions/workflows/ci.yml)
 
 Basic implementation of Microsoft Excel's GoalSeek macro, inspired by [Adam Hanna's Javascript library](https://github.com/adam-hanna/goal-seek).
 
