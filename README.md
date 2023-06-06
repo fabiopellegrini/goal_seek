@@ -56,7 +56,7 @@ Available options:
 ```elixir
 ```
 
-Look at test/goal_seek_test.exs for more examples
+Look at `test/goal_seek_test.exs` for more examples
 
 ## Contributors
 

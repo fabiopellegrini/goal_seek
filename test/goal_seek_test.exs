@@ -35,6 +35,12 @@ defmodule GoalSeekTest do
       assert {:ok, -2} === GoalSeek.seek(4, f, [0], 0)
     end
 
+    test "returns same type of initial guess when possible" do
+      f = fn x -> x * x end
+
+      assert {:ok, -2.0} === GoalSeek.seek(4, f, [0.0], 0)
+    end
+
     test "finds exact goal for quadratic function with custom tolerance function" do
       f = fn x -> x * x end
       goal = 4
@@ -63,6 +69,13 @@ defmodule GoalSeekTest do
       f = fn x -> x * x * x end
 
       assert {:ok, 2.15} === GoalSeek.seek(10, f, [0], 0)
+    end
+
+    test "max step can be defined" do
+      f = fn x -> x + 1 end
+
+      assert {:error, :cannot_converge} === GoalSeek.seek(2001, f, [0], 0, max_step: 1)
+      assert {:ok, 2000} === GoalSeek.seek(2001, f, [0], 0, max_step: 100)
     end
   end
 end

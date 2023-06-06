@@ -182,15 +182,10 @@ defmodule GoalSeek do
     end
   end
 
-  defp optionally_cast_to_integer(last_guess, first_guess) when is_integer(first_guess) do
-    with {integer, _} <- Integer.parse("#{last_guess}"),
-         {float, _} <- Float.parse("#{last_guess}"),
-         true <- integer == float do
-      integer
-    else
-      _ -> last_guess
-    end
-  end
+  defp optionally_cast_to_integer(last_guess, first_guess)
+       when is_integer(first_guess) and round(last_guess) == last_guess,
+       do: round(last_guess)
 
-  defp optionally_cast_to_integer(last_guess, _first_guess), do: last_guess
+  defp optionally_cast_to_integer(last_guess, _first_guess),
+    do: last_guess
 end
