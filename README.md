@@ -40,17 +40,35 @@ The function arguments are the following:
 
 Available options:
 
-| Name              | Description                                                                                                                                                   | Default |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `:tolerance_fn`   | a custom function used to check the validity of the result, it takes two arguments (`current_result` and `current_iteration`) and returns a boolean           | `nil`   |
-| `:acceptance_fn`  | a custom function used to ensure the seeked value respects some criteria (e.g. being positive), it takes one argument (`current_guess`) and returns a boolean | `nil`   |
-| `:max_iterations` | the maximum number of attempts to make                                                                                                                        | 1000    |
-| `:max_step`       | the maximum step size to move the independent variable `x` for the next guess                                                                                 | `nil`   |
+| Name               | Description                                                                                                                                                   | Default |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `:tolerance_fn`    | a custom function used to check the validity of the result, it takes two arguments (`current_result` and `current_iteration`) and returns a boolean           | `nil`   |
+| `:acceptance_fn`   | a custom function used to ensure the seeked value respects some criteria (e.g. being positive), it takes one argument (`current_guess`) and returns a boolean | `nil`   |
+| `:max_iterations`  | the maximum number of attempts to make                                                                                                                        | 1000    |
+| `:max_step`        | the maximum step size to move the independent variable `x` for the next guess                                                                                 | `nil`   |
+| `:float_precision` | the desired float precision for the independent variable                                                                                                      | 2       |
 
 ## Examples
 
 
 ```elixir
+iex> GoalSeek.seek(7, &Kernel.+/2, [3, 0], 1)
+{:ok, 4}
+
+iex> GoalSeek.seek(4, &(&1 * &1), [0], 0)
+{:ok, -2}
+
+iex> GoalSeek.seek(4, &(&1 * &1), [0], 0, acceptance_fn: &(&1 > 0))
+{:ok, 2}
+
+iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0)
+{:ok, -2.15}
+
+iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0, float_precision: 5)
+{:ok, -2.15443}
+
+iex> GoalSeek.seek(-9, &:math.pow(&1, 3), [0], 0, acceptance_fn: &(&1 > 0))
+{:error, :cannot_converge}
 ```
 
 Look at `test/goal_seek_test.exs` for more examples

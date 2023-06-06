@@ -10,21 +10,16 @@ defmodule GoalSeek do
 
   alias Noether.Either
 
-  @result_precision 2
-  @desired_precision 3
-  @minimum_precision 2
-
   @default_options [
     tolerance_fn: nil,
     acceptance_fn: nil,
     max_iterations: 1000,
-    max_step: nil
+    max_step: nil,
+    float_precision: 2
   ]
 
   @doc """
-  Hello world.
-
-  ## Examples
+  Find the specified numeric result by adjusting and returning a correct input value
 
   iex> GoalSeek.seek(5, &Kernel.+/2, [3, 0], 1)
   {:ok, 2}
@@ -32,11 +27,8 @@ defmodule GoalSeek do
   iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0)
   {:ok, -2.15}
 
-  # iex> GoalSeek.seek(10, &:math.pow(&1, 3), [0], 0, tolerance_fn: fn result, _ -> result >= 8 and result <= 12 end)
-  # {:ok, 2.15}
-
-  # iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0, result_precision: 3)
-  # {:ok, -2.154}
+  iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0, float_precision: 5)
+  {:ok, -2.15443}
 
   iex> GoalSeek.seek(-9, &:math.pow(&1, 3), [0], 0, acceptance_fn: &(&1 > 0))
   {:error, :cannot_converge}
@@ -47,7 +39,10 @@ defmodule GoalSeek do
       when is_function(function, length(parameters)) do
     options = Keyword.merge(@default_options, options)
     first_guess = Enum.at(parameters, independent_variable_idx)
-    default_tolerance_fn = goal_reached?(goal, options[:max_iterations])
+
+    default_tolerance_fn =
+      goal_reached?(goal, options[:max_iterations], options[:float_precision])
+
     default_acceptance_fn = fn _guess -> true end
 
     function
@@ -55,6 +50,7 @@ defmodule GoalSeek do
       parameters,
       goal,
       independent_variable_idx,
+      options[:float_precision],
       options[:tolerance_fn] || default_tolerance_fn,
       options[:acceptance_fn] || default_acceptance_fn,
       options[:max_step],
@@ -64,7 +60,7 @@ defmodule GoalSeek do
     |> Either.map(&optionally_cast_to_integer(&1, first_guess))
   end
 
-  defp iterate(_, _, _, _, _, _, _, max_iterations, max_iterations) do
+  defp iterate(_, _, _, _, _, _, _, _, max_iterations, max_iterations) do
     {:error, :cannot_converge}
   end
 
@@ -73,6 +69,7 @@ defmodule GoalSeek do
          parameters,
          goal,
          independent_variable_idx,
+         float_precision,
          tolerance_fn,
          acceptance_fn,
          max_step,
@@ -87,7 +84,7 @@ defmodule GoalSeek do
 
       cond do
         tolerance_fn.(result, current_iteration) and acceptance_fn.(result) ->
-          {:ok, Float.round(old_guess, @result_precision)}
+          {:ok, Float.round(old_guess, float_precision)}
 
         tolerance_fn.(result, current_iteration) and not acceptance_fn.(result) ->
           {:error, :cannot_converge}
@@ -112,6 +109,7 @@ defmodule GoalSeek do
               new_parameters,
               goal,
               independent_variable_idx,
+              float_precision,
               tolerance_fn,
               acceptance_fn,
               max_step,
@@ -172,15 +170,15 @@ defmodule GoalSeek do
     Enum.take(list, index) ++ [new_value] ++ Enum.drop(list, index + 1)
   end
 
-  defp goal_reached?(goal, max_iterations) do
-    fn result, current_iteration ->
-      if current_iteration < max_iterations / 2 do
-        Float.round(abs(result - goal) / 1, @desired_precision) <=
-          :math.pow(10, -1 * @desired_precision)
-      else
-        Float.round(abs(result - goal) / 1, @minimum_precision) <=
-          :math.pow(10, -1 * @minimum_precision)
-      end
+  defp goal_reached?(goal, max_iterations, float_precision) do
+    fn
+      result, current_iteration when current_iteration < max_iterations / 2 ->
+        Float.round(abs(result - goal) / 1, float_precision + 1) <=
+          :math.pow(10, -1 * (float_precision + 1))
+
+      result, _current_iteration ->
+        Float.round(abs(result - goal) / 1, float_precision) <=
+          :math.pow(10, -1 * float_precision)
     end
   end
 
