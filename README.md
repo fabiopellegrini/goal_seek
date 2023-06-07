@@ -71,6 +71,8 @@ iex> GoalSeek.seek(10000, fn x -> x + 1 end, [0], 0, max_step: 1, max_iterations
 {:error, :cannot_converge}
 ```
 
+See `test/goal_seek_test.exs` for other examples!
+
 ## Contributors
 
 Fabio Pellegrini - Author/Maintainer

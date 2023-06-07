@@ -85,7 +85,7 @@ defmodule GoalSeekTest do
     assert {:ok, 2.154} === GoalSeek.seek(10, f, [0], 0, float_precision: 3)
   end
 
-  test "it max step can be defined" do
+  test "max step can be defined" do
     f = fn x -> x + 1 end
 
     assert {:error, :cannot_converge} === GoalSeek.seek(2001, f, [0], 0, max_step: 1)
