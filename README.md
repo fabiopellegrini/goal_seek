@@ -40,12 +40,13 @@ The function arguments are the following:
 
 Available options:
 
-| Name               | Description                                                                                                                                         | Default |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `:tolerance_fn`    | a custom function used to check the validity of the result, it takes two arguments (`current_result` and `current_iteration`) and returns a boolean | `nil`   |
-| `:max_iterations`  | the maximum number of attempts to make                                                                                                              | 1000    |
-| `:max_step`        | the maximum step size to move the independent variable `x` for the next guess                                                                       | `nil`   |
-| `:float_precision` | the desired float precision for the independent variable                                                                                            | 2       |
+| Name                    | Description                                                                                                                                                                                | Default |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| `:tolerance_percentage` | the acceptable error range to the stated goal. For instance, setting this value to 1 will be interpreted as ± 1%                                                                           | `nil`   |
+| `:tolerance_fn`         | a custom function used to check the validity of the result, it takes one argument (`current_result`) and returns a boolean. If this value is set `:tolerance_percentage` option is ignored | `nil`   |
+| `:max_iterations`       | the maximum number of attempts to make                                                                                                                                                     | 1000    |
+| `:max_step`             | the maximum step size to move the independent variable `x` for the next guess                                                                                                              | `nil`   |
+| `:float_precision`      | the desired float precision for the independent variable                                                                                                                                   | 2       |
 
 ## Examples
 

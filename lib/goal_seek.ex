@@ -12,6 +12,7 @@ defmodule GoalSeek do
 
   @default_options [
     tolerance_fn: nil,
+    tolerance_percentage: nil,
     max_iterations: 1000,
     max_step: nil,
     float_precision: 2
@@ -36,21 +37,34 @@ defmodule GoalSeek do
     options = Keyword.merge(@default_options, options)
     first_guess = Enum.at(parameters, independent_variable_idx)
 
-    default_tolerance_fn =
-      goal_reached?(goal, options[:max_iterations], options[:float_precision])
-
     function
     |> iterate(
       parameters,
       goal,
       independent_variable_idx,
       options[:float_precision],
-      options[:tolerance_fn] || default_tolerance_fn,
+      tolerance_function(goal, options),
       options[:max_step],
       options[:max_iterations],
       0
     )
     |> Either.map(&optionally_cast_to_integer(&1, first_guess))
+  end
+
+  defp tolerance_function(goal, options) do
+    case {options[:tolerance_fn], options[:tolerance_percentage]} do
+      {nil, nil} ->
+        goal_reached?(goal, options[:max_iterations], options[:float_precision])
+
+      {nil, tolerance_percentage} ->
+        fn result, _current_iteration ->
+          tolerance = abs(goal) * tolerance_percentage / 100
+          result <= goal + tolerance and result >= goal - tolerance
+        end
+
+      {tolerance_fn, _} ->
+        fn result, _current_iteration -> tolerance_fn.(result) end
+    end
   end
 
   defp iterate(_, _, _, _, _, _, _, max_iterations, max_iterations) do

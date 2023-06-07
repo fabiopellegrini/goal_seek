@@ -11,6 +11,29 @@ defmodule GoalSeekTest do
     assert {:ok, 98} === GoalSeek.seek(100, f, [2], 0)
   end
 
+  test "it accepts a tolerance percentage with a positive goal" do
+    f = fn x -> x + 2 end
+
+    assert {:ok, 97} === GoalSeek.seek(100, f, [90], 0, tolerance_percentage: 1, max_step: 1)
+  end
+
+  test "it accepts a tolerance percentage with a negative goal" do
+    f = fn x -> x * x * x end
+
+    assert {:ok, -2.18} === GoalSeek.seek(-10, f, [2], 0, tolerance_percentage: 5)
+  end
+
+  test "custom tolerance function wins over tolerance percentage" do
+    f = fn x -> x + 2 end
+
+    assert {:ok, 89} ===
+             GoalSeek.seek(100, f, [50], 0,
+               tolerance_percentage: 1,
+               tolerance_fn: &(&1 > 90 and &1 < 110),
+               max_step: 1
+             )
+  end
+
   test "it returns error for function that never crosses the goal within the given bound" do
     f = fn x -> x * x end
 
@@ -39,12 +62,8 @@ defmodule GoalSeekTest do
 
   test "it finds exact goal for quadratic function with custom tolerance function" do
     f = fn x -> x * x end
-    goal = 4
 
-    assert {:ok, -1} ===
-             GoalSeek.seek(goal, f, [0], 0,
-               tolerance_fn: fn result, _ -> result > 0 and result < 4 end
-             )
+    assert {:ok, -1} === GoalSeek.seek(4, f, [0], 0, tolerance_fn: &(&1 > 0 and &1 < 4))
   end
 
   test "it finds exact goal for cubic function" do
