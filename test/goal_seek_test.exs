@@ -54,13 +54,6 @@ defmodule GoalSeekTest do
     assert {:ok, -1} === GoalSeek.seek(-1, f, [1], 0)
   end
 
-  test "it fails to find negative goal for cubic function with positive acceptance criteria" do
-    f = fn x -> x * x * x end
-
-    assert {:error, :cannot_converge} ===
-             GoalSeek.seek(-9, f, [0], 0, acceptance_fn: fn x -> x > 0 end)
-  end
-
   test "it finds approximate goal for cubic function" do
     f = fn x -> x * x * x end
 
@@ -78,5 +71,11 @@ defmodule GoalSeekTest do
 
     assert {:error, :cannot_converge} === GoalSeek.seek(2001, f, [0], 0, max_step: 1)
     assert {:ok, 2000} === GoalSeek.seek(2001, f, [0], 0, max_step: 100)
+  end
+
+  test "even with a bad first guess the algorithm can converge to the goal" do
+    f = fn x -> x * x end
+
+    assert {:ok, 2} === GoalSeek.seek(4, f, [1000], 0, max_step: 1)
   end
 end

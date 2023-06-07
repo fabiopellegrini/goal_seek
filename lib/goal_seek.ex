@@ -12,7 +12,6 @@ defmodule GoalSeek do
 
   @default_options [
     tolerance_fn: nil,
-    acceptance_fn: nil,
     max_iterations: 1000,
     max_step: nil,
     float_precision: 2
@@ -29,9 +28,6 @@ defmodule GoalSeek do
 
   iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0, float_precision: 5)
   {:ok, -2.15443}
-
-  iex> GoalSeek.seek(-9, &:math.pow(&1, 3), [0], 0, acceptance_fn: &(&1 > 0))
-  {:error, :cannot_converge}
   """
   @spec seek(number(), (... -> number()), list(), integer(), keyword()) ::
           {:error, any()} | {:ok, number()}
@@ -43,8 +39,6 @@ defmodule GoalSeek do
     default_tolerance_fn =
       goal_reached?(goal, options[:max_iterations], options[:float_precision])
 
-    default_acceptance_fn = fn _guess -> true end
-
     function
     |> iterate(
       parameters,
@@ -52,7 +46,6 @@ defmodule GoalSeek do
       independent_variable_idx,
       options[:float_precision],
       options[:tolerance_fn] || default_tolerance_fn,
-      options[:acceptance_fn] || default_acceptance_fn,
       options[:max_step],
       options[:max_iterations],
       0
@@ -60,7 +53,7 @@ defmodule GoalSeek do
     |> Either.map(&optionally_cast_to_integer(&1, first_guess))
   end
 
-  defp iterate(_, _, _, _, _, _, _, _, max_iterations, max_iterations) do
+  defp iterate(_, _, _, _, _, _, _, max_iterations, max_iterations) do
     {:error, :cannot_converge}
   end
 
@@ -71,7 +64,6 @@ defmodule GoalSeek do
          independent_variable_idx,
          float_precision,
          tolerance_fn,
-         acceptance_fn,
          max_step,
          max_iterations,
          current_iteration
@@ -82,43 +74,33 @@ defmodule GoalSeek do
       error = result - goal
       old_guess = Enum.at(parameters, independent_variable_idx)
 
-      cond do
-        tolerance_fn.(result, current_iteration) and acceptance_fn.(result) ->
-          {:ok, Float.round(old_guess, float_precision)}
+      if tolerance_fn.(result, current_iteration) do
+        {:ok, Float.round(old_guess / 1.0, float_precision)}
+      else
+        new_guess =
+          find_new_guess(
+            error,
+            max_step,
+            old_guess,
+            function,
+            parameters,
+            independent_variable_idx,
+            goal
+          )
 
-        tolerance_fn.(result, current_iteration) and not acceptance_fn.(result) ->
-          {:error, :cannot_converge}
+        new_parameters = replace_at(parameters, independent_variable_idx, new_guess)
 
-        true ->
-          new_guess =
-            find_new_guess(
-              error,
-              max_step,
-              old_guess,
-              function,
-              parameters,
-              independent_variable_idx,
-              goal
-            )
-
-          if acceptance_fn.(new_guess) do
-            new_parameters = replace_at(parameters, independent_variable_idx, new_guess)
-
-            iterate(
-              function,
-              new_parameters,
-              goal,
-              independent_variable_idx,
-              float_precision,
-              tolerance_fn,
-              acceptance_fn,
-              max_step,
-              max_iterations,
-              current_iteration + 1
-            )
-          else
-            {:error, :cannot_converge}
-          end
+        iterate(
+          function,
+          new_parameters,
+          goal,
+          independent_variable_idx,
+          float_precision,
+          tolerance_fn,
+          max_step,
+          max_iterations,
+          current_iteration + 1
+        )
       end
     end)
   rescue
