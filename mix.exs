@@ -35,7 +35,6 @@ defmodule GoalSeek.MixProject do
       source_ref: "v#{@version}",
       main: "GoalSeek",
       extras: ["README.md"],
-      extra_section: "GUIDES",
       formatters: ["html"]
     ]
   end
@@ -43,6 +42,7 @@ defmodule GoalSeek.MixProject do
   defp package do
     [
       licenses: ["MIT"],
+      maintainers: ["Fabio Pellegrini"],
       links: %{
         "GitHub" => "https://github.com/fabiopellegrini/goal_seek"
       }
