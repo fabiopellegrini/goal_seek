@@ -21,14 +21,14 @@ defmodule GoalSeek do
   @doc """
   Find the specified numeric result by adjusting and returning a correct input value
 
-  iex> GoalSeek.seek(5, &Kernel.+/2, [3, 0], 1)
-  {:ok, 2}
+      iex> GoalSeek.seek(5, &Kernel.+/2, [3, 0], 1)
+      {:ok, 2}
 
-  iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0)
-  {:ok, -2.15}
+      iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0)
+      {:ok, -2.15}
 
-  iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0, float_precision: 5)
-  {:ok, -2.15443}
+      iex> GoalSeek.seek(-10, &:math.pow(&1, 3), [0], 0, float_precision: 5)
+      {:ok, -2.15443}
   """
   @spec seek(number(), (... -> number()), list(), integer(), keyword()) ::
           {:error, any()} | {:ok, number()}

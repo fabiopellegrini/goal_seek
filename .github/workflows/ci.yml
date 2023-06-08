@@ -1,16 +1,19 @@
-name: "CI tests"
+name: ci
+
 on:
   push:
     branches:
-      - master
+      - "master"
+    tags:
+      - "*.*.*"
   pull_request:
-    branches:
-      - master
+      branches:
+        - master
 
 jobs:
-  test:
+  run_tests:
     runs-on: ubuntu-20.04
-    name: "[${{matrix.otp}}/${{matrix.elixir}}] CI tests on GoalSeek [OTP/Elixir]"
+    name: "[${{matrix.otp}}/${{matrix.elixir}}] Run tests"
     strategy:
       fail-fast: false
       matrix:
@@ -23,13 +26,90 @@ jobs:
       - uses: actions/checkout@v2.3.1
         with:
           fetch-depth: 0
+
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
-      - run: mix deps.get
-      - run: mix deps.compile
-      - run: mix compile --warnings-as-errors
-      - run: mix credo --strict
-      - run: mix dialyzer
-      - run: mix coveralls
+
+      - name: Set cache key
+        id: set-cache-key
+        run: |
+          cache_key="${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles(format('{0}{1}', github.workspace, '**/mix.lock')) }}"
+          echo "cache_key=$cache_key" >> $GITHUB_OUTPUT
+
+      - name: Retrieve dependencies cache
+        uses: actions/cache@v2
+        id: mix-cache
+        with:
+          path: deps
+          key: ${{ steps.set-cache-key.outputs.cache_key }}-mix
+          restore-keys: mix-${{ runner.os }}
+
+      - name: Install
+        if: steps.mix-cache.outputs.cache-hit != 'true'
+        run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get
+
+      - name: Retrieve build cache
+        uses: actions/cache@v2
+        with:
+          path: _build
+          key: ${{ steps.set-cache-key.outputs.cache_key }}-build
+          restore-keys: build-${{ runner.os }}
+
+      - name: Retrieve Dialyzer PLTs cache
+        uses: actions/cache@v2
+        id: plts-cache
+        with:
+          path: priv/plts
+          key: ${{ steps.set-cache-key.outputs.cache_key }}-plts
+          restore-keys: plts-${{ runner.os }}
+
+      - name: Compile
+        run: mix compile --warnings-as-errors
+      
+      - name: Check Code Style
+        run: mix format --check-formatted
+
+      - name: Check Static Analysis
+        run: |
+          mkdir -p priv/plts
+          mix dialyzer 
+
+      - name: Test Coverage
+        env:
+          MIX_ENV: test 
+        run: mix coveralls
+
+  publish_to_hex:
+    name: Publish library
+    needs:
+      - run_tests
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        otp: ["25.1"]
+        elixir: ["1.14.4"]
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2.3.1
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{matrix.elixir}}
+          otp-version: ${{matrix.otp}}
+
+      - name: Publish to Hex.pm
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get
+          mix compile --warnings-as-errors=false
+          mix hex.publish --yes

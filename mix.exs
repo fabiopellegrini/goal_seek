@@ -2,10 +2,15 @@ defmodule GoalSeek.MixProject do
   @moduledoc false
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       app: :goal_seek,
-      version: "0.1.0",
+      name: "GoalSeek",
+      version: @version,
+      description: "Goal Seek implementation for Elixir",
+      source_url: "https://github.com/fabiopellegrini/goal_seek",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -13,13 +18,34 @@ defmodule GoalSeek.MixProject do
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.html": :test
-      ]
+      ],
+      package: package(),
+      docs: docs()
     ]
   end
 
   def application do
     [
       extra_applications: [:logger]
+    ]
+  end
+
+  defp docs do
+    [
+      source_ref: "v#{@version}",
+      main: "GoalSeek",
+      extras: ["README.md"],
+      extra_section: "GUIDES",
+      formatters: ["html"]
+    ]
+  end
+
+  defp package do
+    [
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => "https://github.com/fabiopellegrini/goal_seek"
+      }
     ]
   end
 
