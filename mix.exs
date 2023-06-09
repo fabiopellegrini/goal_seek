@@ -33,7 +33,7 @@ defmodule GoalSeek.MixProject do
   defp docs do
     [
       source_ref: "v#{@version}",
-      main: "GoalSeek",
+      main: "readme",
       extras: ["README.md"],
       formatters: ["html"]
     ]
