@@ -1,6 +1,7 @@
 # GoalSeek
 
 [![Hex version](https://img.shields.io/hexpm/v/goal_seek.svg)](https://hex.pm/packages/goal_seek)
+[![Coverage Status](https://coveralls.io/repos/fabiopellegrini/goal_seek/badge.svg?branch=master)](https://coveralls.io/r/fabiopellegrini/goal_seek?branch=master)
 [![License](https://img.shields.io/hexpm/l/goal_seek.svg)](https://github.com/fabiopellegrini/goal_seek/blob/master/LICENSE)
 [![CI tests](https://github.com/fabiopellegrini/goal_seek/actions/workflows/ci.yml/badge.svg)](https://github.com/fabiopellegrini/goal_seek/actions/workflows/ci.yml)
 
