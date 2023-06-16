@@ -1,9 +1,7 @@
 repository:
   ## WARN changing this will rename the repository
-  name: goal_seek 
+  name: goal_seek
 
   description: Goal Seek implementation for Elixir
-
-  private: true
 
   delete_branch_on_merge: true
