@@ -3,12 +3,12 @@ name: ci
 on:
   push:
     branches:
-      - "master"
+      - "main"
     tags:
       - "*.*.*"
   pull_request:
       branches:
-        - master
+        - main
 
 jobs:
   run_tests:
@@ -95,7 +95,7 @@ jobs:
       matrix:
         otp: [25.1]
         elixir: [1.14.4]
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     env:
       MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
